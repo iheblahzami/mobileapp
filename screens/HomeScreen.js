@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Button } from 'react-native';
+import { Card } from "react-native-paper";
 
 const professions = [
   { id: '1', name: 'Plumber', image: 'https://via.placeholder.com/150' },
@@ -8,7 +9,6 @@ const professions = [
   { id: '4', name: 'Carpenter', image: 'https://via.placeholder.com/150' },
 ];
 
-
 const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
@@ -16,9 +16,11 @@ const HomeScreen = ({ navigation }) => {
         data={professions}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Details', { profession: item })}>
-            <Image source={{ uri: item.image }} style={styles.image} />
-            <Text style={styles.text}>{item.name}</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Details', { profession: item })}>
+            <Card style={styles.card}>
+              <Image source={{ uri: item.image }} style={styles.image} />
+              <Text style={styles.text}>{item.name}</Text>
+            </Card>
           </TouchableOpacity>
         )}
       />
@@ -29,7 +31,18 @@ const HomeScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 10, backgroundColor: '#f4f4f4' },
-  card: { backgroundColor: '#fff', margin: 10, padding: 10, borderRadius: 10, alignItems: 'center' },
+  card: { 
+    backgroundColor: '#fff', 
+    margin: 10, 
+    padding: 15, 
+    borderRadius: 10, 
+    alignItems: 'center',
+    elevation: 5,  // Adds shadow on Android
+    shadowColor: "#000", 
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
   image: { width: 150, height: 150, borderRadius: 10 },
   text: { marginTop: 10, fontSize: 18, fontWeight: 'bold' },
 });
