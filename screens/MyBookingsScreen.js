@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Button } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Button, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { deleteDoc, updateDoc, doc } from "firebase/firestore";
+import { db } from '../firebaseConfig';  // Make sure this path is correct
 
 const MyBookingsScreen = () => {
   const [bookings, setBookings] = useState([]);
@@ -20,6 +22,26 @@ const MyBookingsScreen = () => {
     }
   };
 
+  const deleteBooking = async (id) => {
+    try {
+      await deleteDoc(doc(db, "bookings", id));
+      Alert.alert("Deleted!", "Your booking has been removed.");
+      loadBookings(); // Refresh bookings
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+    }
+  };
+
+  const editBooking = async (id, newData) => {
+    try {
+      await updateDoc(doc(db, "bookings", id), newData);
+      Alert.alert("Updated!", "Your booking has been updated.");
+      loadBookings(); // Refresh bookings
+    } catch (error) {
+      console.error("Error updating booking:", error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Bookings</Text>
@@ -32,6 +54,7 @@ const MyBookingsScreen = () => {
             <Text>👤 {item.name}</Text>
             <Text>📝 {item.need}</Text>
             <Text>📅 {item.date}</Text>
+            <Button title="Delete" onPress={() => deleteBooking(item.id)} />
           </View>
         )}
       />

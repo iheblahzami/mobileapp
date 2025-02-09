@@ -3,10 +3,10 @@ import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Button } fro
 import { Card } from "react-native-paper";
 
 const professions = [
-  { id: '1', name: 'Plumber', image: 'https://via.placeholder.com/150' },
-  { id: '2', name: 'Gardener', image: 'https://via.placeholder.com/150' },
-  { id: '3', name: 'Electrician', image: 'https://via.placeholder.com/150' },
-  { id: '4', name: 'Carpenter', image: 'https://via.placeholder.com/150' },
+  { id: '1', name: 'Plumber', image: require('../assets/plumber-cartoon-colored-clipart-illustration-2PNTBJY.jpg') },
+  { id: '2', name: 'Gardener', image: require('../assets/R.jpg') },
+  { id: '3', name: 'Electrician', image: require('../assets/electricien-30694651.webp') },
+  { id: '4', name: 'Carpenter', image: require('../assets/pngtree-carpenter-clipart-builder-working-with-tools-on-a-woodworking-workbench-cartoon-png-image_11079654.png') },
 ];
 
 const HomeScreen = ({ navigation }) => {
@@ -18,9 +18,13 @@ const HomeScreen = ({ navigation }) => {
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => navigation.navigate('Details', { profession: item })}>
             <Card style={styles.card}>
-              <Image source={{ uri: item.image }} style={styles.image} />
-              <Text style={styles.text}>{item.name}</Text>
+              <Image source={item.image} style={styles.image} />
+              <Card.Content>
+               <Text style={styles.text}>{item.name}</Text>
+              </Card.Content>
             </Card>
+
+
           </TouchableOpacity>
         )}
       />
