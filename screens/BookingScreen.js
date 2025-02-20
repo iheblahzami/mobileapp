@@ -3,16 +3,18 @@ import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import emailjs from "@emailjs/browser"; // Import EmailJS
 
 const BookingScreen = ({ route, navigation }) => {
   const { profession } = route.params;
   const [name, setName] = useState("");
   const [need, setNeed] = useState("");
+  const [address, setAddress] = useState(""); // New state for address
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
 
   const validateInput = () => {
-    if (!name.trim() || !need.trim()) {
+    if (!name.trim() || !need.trim() || !address.trim()) {
       Alert.alert("Error", "All fields are required.");
       return false;
     }
@@ -24,28 +26,50 @@ const BookingScreen = ({ route, navigation }) => {
       Alert.alert("Error", "Please provide a more detailed need.");
       return false;
     }
+    if (address.trim().length < 5) {
+      Alert.alert("Error", "Please provide a valid address.");
+      return false;
+    }
     return true;
   };
 
- const saveBooking = async () => {
-  if (!validateInput()) return;
+  const saveBooking = async () => {
+    if (!validateInput()) return;
 
-  try {
-    const docRef = await addDoc(collection(db, "bookings"), {
-      name: name.trim(),
-      need: need.trim(),
-      date: date.toDateString(),
-      profession: profession.name,
-    });
-    console.log("Document saved with ID:", docRef.id);
-    Alert.alert("Success", "Your booking has been saved!");
-    navigation.navigate("Home");
-  } catch (error) {
-    console.error("Firestore Error:", error);
-    Alert.alert("Error", "Failed to save booking. Check Firestore setup.");
-  }
-};
+    try {
+      const bookingDetails = {
+        user_name: name.trim(),
+        user_need: need.trim(),
+        user_address: address.trim(),
+        booking_date: date.toDateString(),
+        profession: profession.name,
+      };
 
+      // Send email using EmailJS
+      emailjs
+        .send(
+          "service_aamh6an", // Replace with your EmailJS service ID
+          "template_b3yu7d5", // Replace with your EmailJS template ID
+          bookingDetails,
+          "uAMYkY7XSaAs2VCuf" // public key
+        )
+        .then(() => {
+          Alert.alert("Success", "Booking saved and email sent!");
+        })
+        .catch((error) => {
+          console.error("EmailJS Error:", error);
+          Alert.alert("Error", "Failed to send email.");
+        });
+
+      // Save to Firestore
+      const docRef = await addDoc(collection(db, "bookings"), bookingDetails);
+      console.log("Document saved with ID:", docRef.id);
+      navigation.navigate("Home");
+    } catch (error) {
+      console.error("Firestore Error:", error);
+      Alert.alert("Error", "Failed to save booking.");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -66,8 +90,18 @@ const BookingScreen = ({ route, navigation }) => {
         multiline
       />
 
+      <TextInput
+        style={styles.input}
+        placeholder="Your Address"
+        value={address}
+        onChangeText={setAddress}
+      />
+
       <View style={styles.dateContainer}>
-        <Button title={`Selected Date: ${date.toDateString()}`} onPress={() => setShowPicker(true)} />
+        <Button
+          title={`Selected Date: ${date.toDateString()}`}
+          onPress={() => setShowPicker(true)}
+        />
       </View>
 
       {showPicker && (
