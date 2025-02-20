@@ -68,13 +68,16 @@ const BookingScreen = ({ route, navigation }) => {
 
   const sendEmailNotification = async (bookingDetails) => {
     try {
-      const response = await fetch("http:192.168.100.176:5000/send-email", {
+      const response = await fetch("https://backend-qa3onii49-ihebs-projects-5ce2718a.vercel.app/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingDetails),
       });
   
-      const data = await response.json();
+      const text = await response.text(); // Get response as text
+      console.log("Raw response:", text);
+  
+      const data = JSON.parse(text); // Try parsing manually
       if (data.success) {
         Alert.alert("Email Sent", "A confirmation email has been sent.");
       } else {
@@ -85,6 +88,7 @@ const BookingScreen = ({ route, navigation }) => {
       Alert.alert("Error", "Failed to send email.");
     }
   };
+  
   
 
   return (
