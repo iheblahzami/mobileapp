@@ -35,41 +35,57 @@ const BookingScreen = ({ route, navigation }) => {
 
   const saveBooking = async () => {
     if (!validateInput()) return;
-
+  
     try {
-      const bookingDetails = {
-        user_name: name.trim(),
-        user_need: need.trim(),
-        user_address: address.trim(),
-        booking_date: date.toDateString(),
+      const docRef = await addDoc(collection(db, "bookings"), {
+        name: name.trim(),
+        need: need.trim(),
+        address: address.trim(),
+        date: date.toDateString(),
         profession: profession.name,
-      };
-
-      // Send email using EmailJS
-      emailjs
-        .send(
-          "service_aamh6an", // Replace with your EmailJS service ID
-          "template_b3yu7d5", // Replace with your EmailJS template ID
-          bookingDetails,
-          "uAMYkY7XSaAs2VCuf" // public key
-        )
-        .then(() => {
-          Alert.alert("Success", "Booking saved and email sent!");
-        })
-        .catch((error) => {
-          console.error("EmailJS Error:", error);
-          Alert.alert("Error", "Failed to send email.");
-        });
-
-      // Save to Firestore
-      const docRef = await addDoc(collection(db, "bookings"), bookingDetails);
+      });
+  
       console.log("Document saved with ID:", docRef.id);
+      Alert.alert("Success", "Your booking has been saved!");
+  
+      // Send email
+      sendEmailNotification({
+        name,
+        need,
+        address,
+        date: date.toDateString(),
+        profession: profession.name,
+      });
+  
       navigation.navigate("Home");
     } catch (error) {
       console.error("Firestore Error:", error);
-      Alert.alert("Error", "Failed to save booking.");
+      Alert.alert("Error", "Failed to save booking. Check Firestore setup.");
     }
   };
+  
+
+
+  const sendEmailNotification = async (bookingDetails) => {
+    try {
+      const response = await fetch("http:192.168.100.176:5000/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookingDetails),
+      });
+  
+      const data = await response.json();
+      if (data.success) {
+        Alert.alert("Email Sent", "A confirmation email has been sent.");
+      } else {
+        Alert.alert("Email Failed", "Could not send email.");
+      }
+    } catch (error) {
+      console.error("Email error:", error);
+      Alert.alert("Error", "Failed to send email.");
+    }
+  };
+  
 
   return (
     <View style={styles.container}>
