@@ -68,24 +68,26 @@ const BookingScreen = ({ route, navigation }) => {
 
   const sendEmailNotification = async (bookingDetails) => {
     try {
-      const response = await fetch("http://192.168.100.176:5000/api/send-email", {
+      const response = await fetch("https://mobileapp-a1xo90cml-ihebs-projects-5ce2718a.vercel.app/api/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingDetails),
       });
-      
+  
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
   
       const data = await response.json();
       if (data.success) {
         Alert.alert("Email Sent", "A confirmation email has been sent.");
       } else {
-        Alert.alert("Email Failed", "Could not send email.");
+        Alert.alert("Email Failed", data.message || "Could not send email.");
       }
     } catch (error) {
       console.error("Email error:", error);
       Alert.alert("Error", "Failed to send email.");
     }
   };
+  
   
 
   return (
